@@ -42,6 +42,8 @@ ATTR_DEVICE_MAC = "device_mac"
 ATTR_DEVICE_MODEL = "device_model"
 ATTR_DEVICE_NAME = "device_name"
 ATTR_DEVICE_OS = "device_os"
+ATTR_PICTURE_MODE = "picture_mode"
+ATTR_PICTURE_LIST = "picture_mode_list"
 
 CONF_APP_LAUNCH_METHOD = "app_launch_method"
 CONF_APP_LIST = "app_list"

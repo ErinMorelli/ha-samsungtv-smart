@@ -154,7 +154,6 @@ SCAN_INTERVAL = timedelta(seconds=15)
 
 _LOGGER = logging.getLogger(__name__)
 
-
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities
 ) -> None:
@@ -231,6 +230,8 @@ class SamsungTVDevice(SamsungTVEntity, MediaPlayerEntity):
 
     _attr_device_class = MediaPlayerDeviceClass.TV
     _attr_name = None
+    _attr_picture_mode: str | None = None
+    _attr_picture_mode_list: list[str] | None = None
 
     def __init__(
         self,
@@ -1018,12 +1019,17 @@ class SamsungTVDevice(SamsungTVEntity, MediaPlayerEntity):
             data.update({ATTR_ART_MODE_STATUS: STATE_ON if status_on else STATE_OFF})
         if self._st:
             picture_mode = self._st.picture_mode
-            picture_mode_list = self._st.picture_mode_list
             if picture_mode:
                 data[ATTR_PICTURE_MODE] = picture_mode
-            if picture_mode_list:
-                data[ATTR_PICTURE_MODE_LIST] = picture_mode_list
 
+        return data
+
+    @property
+    def capability_attributes(self):
+        """Return the optional capability attributes."""
+        data = super().capability_attributes
+        if self.support_select_picture_mode:
+            data[ATTR_PICTURE_MODE_LIST] = self.picture_mode_list
         return data
 
     @property
@@ -1116,6 +1122,24 @@ class SamsungTVDevice(SamsungTVEntity, MediaPlayerEntity):
         if self._st:
             return self._st.sound_mode_list or None
         return None
+
+    @property
+    def picture_mode(self):
+        """Name of the current picture mode."""
+        if self._st:
+            return self._st.picture_mode or None
+        return None
+
+    @property
+    def picture_mode_list(self):
+        """List of available picture modes."""
+        if self._st:
+            return self._st.picture_mode_list or None
+        return None
+
+    @property
+    def support_select_picture_mode(self):
+        return True
 
     @property
     def support_art_mode(self) -> ArtModeSupport:
@@ -1646,7 +1670,7 @@ class SamsungTVDevice(SamsungTVEntity, MediaPlayerEntity):
         """Select sound mode."""
         if not self._st:
             raise NotImplementedError()
-        await self._st.async_set_sound_mode(sound_mode)
+        await self._st.async_set_sound_mode(sound_mode.get("id"))
 
     async def async_select_picture_mode(self, picture_mode):
         """Select picture mode."""
