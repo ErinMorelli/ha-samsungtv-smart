@@ -91,11 +91,11 @@ COMMAND_REWIND = {
     "command": "rewind",
 }
 COMMAND_SOUND_MODE = {
-    "capability": "custom.soundmode",
+    "capability": "samsungvd.soundMode",
     "command": "setSoundMode",
 }
 COMMAND_PICTURE_MODE = {
-    "capability": "custom.picturemode",
+    "capability": "samsungvd.pictureMode",
     "command": "setPictureMode",
 }
 
@@ -110,6 +110,7 @@ def _headers(api_key: str) -> dict[str, str]:
         "Authorization": f"Bearer {api_key}",
         "Accept": "application/json",
         "Connection": "keep-alive",
+        "Content-Type": "application/json",
     }
 
 
@@ -162,8 +163,10 @@ class SmartThingsTV:
         self._channel_name = ""
         self._sound_mode = None
         self._sound_mode_list = None
+        self._sound_mode_list_map = None
         self._picture_mode = None
         self._picture_mode_list = None
+        self._picture_mode_list_map = None
 
         self._is_forced_val = False
         self._forced_count = 0
@@ -483,12 +486,12 @@ class SmartThingsTV:
         # Sound Mode
         self._sound_mode = dev_data.get("soundMode", {}).get("value")
         self._sound_mode_list = self._load_json_list(dev_data, "supportedSoundModes")
+        self._sound_mode_list_map = self._load_json_list(dev_data, "supportedSoundModesMap")
 
         # Picture Mode
         self._picture_mode = dev_data.get("pictureMode", {}).get("value")
-        self._picture_mode_list = self._load_json_list(
-            dev_data, "supportedPictureModes"
-        )
+        self._picture_mode_list = self._load_json_list(dev_data, "supportedPictureModes")
+        self._picture_mode_list_map = self._load_json_list(dev_data, "supportedPictureModesMap")
 
         # Sources and channel
         self._source_list_map = self._load_json_list(
@@ -577,9 +580,16 @@ class SmartThingsTV:
         """Select sound mode"""
         if self._state != STStatus.STATE_ON:
             return
-        if mode not in self._sound_mode_list:
+        mode_id = None
+        for sound_mode in self._sound_mode_list_map:
+            if sound_mode.name == mode:
+                mode_id = sound_mode.id
+                break
+
+        if mode_id is None:
             raise InvalidSmartThingsSoundMode()
-        data_cmd = _command(COMMAND_SOUND_MODE, [mode])
+
+        data_cmd = _command(COMMAND_SOUND_MODE, [mode_id])
         await self._async_send_command(data_cmd)
         self._sound_mode = mode
 
@@ -587,9 +597,17 @@ class SmartThingsTV:
         """Select picture mode"""
         if self._state != STStatus.STATE_ON:
             return
-        if mode not in self._picture_mode_list:
+
+        mode_id = None
+        for picture_mode in self._picture_mode_list_map:
+            if picture_mode.name == mode:
+                mode_id = picture_mode.id
+                break
+
+        if mode_id is None:
             raise InvalidSmartThingsPictureMode()
-        data_cmd = _command(COMMAND_PICTURE_MODE, [mode])
+
+        data_cmd = _command(COMMAND_PICTURE_MODE, [mode_id])
         await self._async_send_command(data_cmd)
         self._picture_mode = mode
 
