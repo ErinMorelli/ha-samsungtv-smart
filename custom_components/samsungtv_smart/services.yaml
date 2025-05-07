@@ -12,8 +12,7 @@ select_picture_mode:
           integration: samsungtv_smart
     picture_mode:
       name: Picture Mode
-      description: Name of the picture mode to switch to. Possible options
-        can be found in the picture_mode_list state attribute.
+      description: Name of the picture mode to switch to.
       required: true
       example: "Standard"
       selector:
@@ -31,3 +30,4 @@ set_art_mode:
       selector:
         entity:
           integration: samsungtv_smart
+
