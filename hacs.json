@@ -1,5 +1,5 @@
 {
-  "name": "SamsungTV Smart",
+  "name": "SamsungTV Smart (custom)",
   "content_in_root": false,
   "homeassistant": "2024.7.0"
 }

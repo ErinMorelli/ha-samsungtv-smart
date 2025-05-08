@@ -582,8 +582,8 @@ class SmartThingsTV:
             return
         mode_id = None
         for sound_mode in self._sound_mode_list_map:
-            if sound_mode.name == mode:
-                mode_id = sound_mode.id
+            if sound_mode.get("name") == mode:
+                mode_id = sound_mode.get("id")
                 break
 
         if mode_id is None:
@@ -600,8 +600,8 @@ class SmartThingsTV:
 
         mode_id = None
         for picture_mode in self._picture_mode_list_map:
-            if picture_mode.name == mode:
-                mode_id = picture_mode.id
+            if picture_mode.get("name") == mode:
+                mode_id = picture_mode.get("id")
                 break
 
         if mode_id is None:
